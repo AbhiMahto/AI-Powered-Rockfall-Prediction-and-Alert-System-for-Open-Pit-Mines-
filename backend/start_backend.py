@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MineGuard AI Backend Starter Script
+RockGuard AI Backend Starter Script
 This script starts the Python backend server for AI-powered mine risk detection.
 """
 
@@ -31,7 +31,7 @@ def install_requirements():
 
 def start_server():
     """Start the Flask server"""
-    print("🚀 Starting MineGuard AI Backend Server...")
+    print("🚀 Starting RockGuard AI Backend Server...")
     try:
         subprocess.run([sys.executable, "app.py"])
     except KeyboardInterrupt:
