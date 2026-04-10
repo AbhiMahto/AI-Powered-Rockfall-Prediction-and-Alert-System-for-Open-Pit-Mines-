@@ -97,9 +97,9 @@ npm run dev
 
 ## 📸 Screenshots & UI Previews
 
-*(You can add screenshots of your beautiful dark-mode dashboard here)*
-* `<img src="path/to/DashboardScreenshot.png" width="800">`
-* `<img src="path/to/PredictionWarning.png" width="800">`
+
+<img src="dashboard.png" width="800">
+<img src="main.png" width="800">
 
 ---
 
