@@ -1,4 +1,4 @@
-# MineGuard AI Backend
+# RockGuard AI Backend
 
 This is the Python backend server that provides AI-powered mine risk detection for the MineGuard Pro dashboard.
 
