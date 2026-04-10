@@ -268,7 +268,7 @@ if __name__ == '__main__':
     # Create backend directory if it doesn't exist
     os.makedirs('backend', exist_ok=True)
     
-    print("🚀 Starting MineGuard AI Backend Server...")
+    print("🚀 Starting RockGuard AI Backend Server...")
     print("📡 Server will be available at: http://localhost:5000")
     print("🔍 AI Detection endpoints:")
     print("   - POST /api/process_frame - Process camera frame")
