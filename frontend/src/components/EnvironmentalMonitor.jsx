@@ -1203,24 +1203,25 @@ const EnvironmentalMonitor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [apiStatus, setApiStatus] = useState('checking');
+  const [sensors, setSensors] = useState(sensorData);
 
-  // ** 1. GEOCODING FUNCTION: Converts City Name to LAT/LON **
+  // ** 1. GEOCODING FUNCTION: Converts City Name to LAT/LON via Open-Meteo **
   const geocodeLocation = useCallback(async (cityName) => {
-    const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${API_KEY}`;
+    const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${cityName}&count=1&language=en&format=json`;
     
     try {
       const geoResponse = await fetch(geoUrl);
       const geoData = await geoResponse.json();
 
-      if (!geoResponse.ok || geoData.length === 0) {
+      if (!geoResponse.ok || !geoData.results || geoData.results.length === 0) {
         throw new Error('Location not found.');
       }
 
-      const location = geoData[0];
-      setLat(location.lat.toFixed(4));
-      setLon(location.lon.toFixed(4));
+      const location = geoData.results[0];
+      setLat(location.latitude.toFixed(4));
+      setLon(location.longitude.toFixed(4));
       setCity(location.name);
-      setCountry(location.country);
+      setCountry(location.country || 'India');
       setTempCityInput(''); 
       return true;
 
@@ -1230,74 +1231,60 @@ const EnvironmentalMonitor = () => {
       setLoading(false);
       return false;
     }
-  }, [API_KEY]);
+  }, []);
 
-  // ** 2. WEATHER FETCHING LOGIC (Uses LAT/LON) **
+  // ** 2. WEATHER FETCHING LOGIC (Uses LAT/LON via Open-Meteo Free API) **
   const fetchWeatherData = useCallback(async (currentLat, currentLon) => {
     setLoading(true);
     setError(null);
     setApiStatus('fetching');
 
-    const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${currentLat}&lon=${currentLon}&appid=${API_KEY}&units=metric`;
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${currentLat}&lon=${currentLon}&appid=${API_KEY}&units=metric`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${currentLat}&longitude=${currentLon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,surface_pressure&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation&forecast_days=1`;
 
     try {
-      // 1. Fetch Current Weather
-      const currentResponse = await fetch(currentUrl);
-      if (!currentResponse.ok) {
-        const errorData = await currentResponse.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP Error: ${currentResponse.status}`);
-      }
-      const currentData = await currentResponse.json();
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+      const data = await response.json();
       
       const newCurrentWeather = {
-        temperature: Math.round(currentData.main.temp * 10) / 10,
-        humidity: Math.round(currentData.main.humidity),
-        windSpeed: Math.round(currentData.wind.speed * 3.6 * 10) / 10,
-        rainfall: currentData.rain?.['1h'] || currentData.rain?.['3h'] || 0,
-        pressure: Math.round(currentData.main.pressure * 10) / 10,
-        visibility: currentData.visibility ? Math.round(currentData.visibility / 100) / 10 : 10
+        temperature: Math.round(data.current.temperature_2m * 10) / 10,
+        humidity: Math.round(data.current.relative_humidity_2m),
+        windSpeed: Math.round(data.current.wind_speed_10m * 10) / 10,
+        rainfall: data.current.precipitation || 0,
+        pressure: Math.round(data.current.surface_pressure || 1013),
+        visibility: 10.0
       };
       setCurrentWeather(newCurrentWeather);
 
-      // 2. Fetch Forecast Data for Trends
-      const forecastResponse = await fetch(forecastUrl);
-      if (!forecastResponse.ok) throw new Error('Forecast API failed.');
-      const forecastData = await forecastResponse.json();
-      
-      const mappedForecast = forecastData.list.slice(0, 7).map(item => {
-        const date = new Date(item.dt * 1000);
-        return {
-          timestamp: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-          rainfall: item.rain?.['3h'] || 0,
-          temperature: Math.round(item.main.temp * 10) / 10,
-          humidity: Math.round(item.main.humidity),
-          windSpeed: Math.round(item.wind.speed * 3.6 * 10) / 10
-        };
-      });
+      // Map hourly forecasts to 6 hour steps for charts
+      const mappedForecast = [];
+      const times = data.hourly.time;
+      for (let i = 0; i < times.length; i += 4) {
+        if (mappedForecast.length >= 6) break;
+        const timeStr = new Date(times[i]).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+        mappedForecast.push({
+          timestamp: timeStr,
+          rainfall: data.hourly.precipitation[i] || 0,
+          temperature: Math.round(data.hourly.temperature_2m[i] * 10) / 10,
+          humidity: Math.round(data.hourly.relative_humidity_2m[i]),
+          windSpeed: Math.round(data.hourly.wind_speed_10m[i] * 10) / 10
+        });
+      }
       
       setEnvironmentalData(mappedForecast);
       setApiStatus('success');
       setError(null);
 
     } catch (err) {
-      console.error("API Error:", err);
-      let errorMessage = 'Could not fetch real-time weather. ';
-      if (err.message.includes('401')) {
-        errorMessage += 'Invalid or inactive API key.';
-      } else {
-        errorMessage += err.message;
-      }
-      errorMessage += ' Displaying mock data.';
-      
-      setError(errorMessage);
+      console.error("Open-Meteo API Error:", err);
+      setError('Could not fetch Open-Meteo live weather data. Displaying fallback mock records.');
       setCurrentWeather(mockCurrentWeather);
       setEnvironmentalData(mockEnvironmentalData);
       setApiStatus('error');
     } finally {
       setLoading(false);
     }
-  }, [API_KEY]);
+  }, []);
 
   // ** Handler for Search Button **
   const handleSearch = async (e) => {

@@ -10,3 +10,7 @@ backend/__pycache__/
 # Node / Frontend
 frontend/node_modules/
 frontend/dist/
+
+# SQLite databases
+*.db
+backend/*.db

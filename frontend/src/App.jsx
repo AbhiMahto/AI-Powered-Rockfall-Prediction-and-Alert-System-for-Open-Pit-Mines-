@@ -11,6 +11,13 @@ import Settings from './components/Settings';
 import ActivityLog from './components/ActivityLog';
 import PitHoleAlarm from './components/PitHoleAlarm';
 import LiveWebcam from './components/LiveWebcam';
+import RiskMap from './components/RiskMap';
+import PredictionModel from './components/PredictionModel';
+import AlertSystem from './components/AlertSystem';
+import EnvironmentalMonitor from './components/EnvironmentalMonitor';
+import ImageUploadAnalysis from './components/ImageUploadAnalysis';
+import ReportGenerator from './components/ReportGenerator';
+import SMSWhatsAppAlerts from './components/SMSWhatsAppAlerts';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -77,10 +84,7 @@ function App() {
           <Route path="/analytics" element={
             <ProtectedRoute>
               <MainLayout>
-                <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
-                  <p className="text-gray-600 mt-2">Advanced analytics and insights coming soon...</p>
-                </div>
+                <Dashboard />
               </MainLayout>
             </ProtectedRoute>
           } />
@@ -89,8 +93,7 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
-                  <p className="text-gray-600 mt-2">Report generation and management coming soon...</p>
+                  <ReportGenerator />
                 </div>
               </MainLayout>
             </ProtectedRoute>
@@ -100,8 +103,7 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-900">Risk Map</h1>
-                  <p className="text-gray-600 mt-2">Interactive risk mapping coming soon...</p>
+                  <RiskMap />
                 </div>
               </MainLayout>
             </ProtectedRoute>
@@ -111,8 +113,7 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-900">Image Analysis</h1>
-                  <p className="text-gray-600 mt-2">AI-powered image analysis coming soon...</p>
+                  <ImageUploadAnalysis />
                 </div>
               </MainLayout>
             </ProtectedRoute>
@@ -130,8 +131,7 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-900">AI Prediction</h1>
-                  <p className="text-gray-600 mt-2">Machine learning predictions coming soon...</p>
+                  <PredictionModel />
                 </div>
               </MainLayout>
             </ProtectedRoute>
@@ -149,8 +149,7 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-900">Alert System</h1>
-                  <p className="text-gray-600 mt-2">Alert management system coming soon...</p>
+                  <AlertSystem />
                 </div>
               </MainLayout>
             </ProtectedRoute>
@@ -160,8 +159,7 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-900">SMS/WhatsApp Alerts</h1>
-                  <p className="text-gray-600 mt-2">Communication alerts coming soon...</p>
+                  <SMSWhatsAppAlerts />
                 </div>
               </MainLayout>
             </ProtectedRoute>
@@ -171,8 +169,7 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <div className="p-6">
-                  <h1 className="text-3xl font-bold text-gray-900">Environmental Monitoring</h1>
-                  <p className="text-gray-600 mt-2">Environmental data monitoring coming soon...</p>
+                  <EnvironmentalMonitor />
                 </div>
               </MainLayout>
             </ProtectedRoute>
